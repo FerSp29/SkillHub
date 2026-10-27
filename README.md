@@ -122,8 +122,8 @@ dotnet build
 dotnet run --project src/SkillHub.Api
 ```
 
-- **Base URL**: `http://localhost:5241`
-- **Swagger UI**: `http://localhost:5241/swagger` (also automatically redirected from `http://localhost:5241/`)
+- **Web Portal (Interactive Frontend UI)**: `http://localhost:5241`
+- **Swagger UI (OpenAPI Documentation)**: `http://localhost:5241/swagger`
 
 ---
 
@@ -135,6 +135,11 @@ On first startup, `DataSeeder` automatically populates the `Employee` and `Parti
 - **Email**: `andres.mejia@correo.com`
 - **Password**: `Instructor2026*`
 - **Role**: `Employee`
+
+### Default Participant Account
+- **Email**: `jorge.perez@correo.com`
+- **Password**: `Skillhub2026*`
+- **Role**: `Participant`
 
 ---
 
