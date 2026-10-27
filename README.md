@@ -86,11 +86,19 @@ SkillHub/
 
 ### PDF Certificate Generation (`GET /api/v1/enrollments/{id}/certificate`)
 - Restricted to `Active` enrollments.
-- Generates an official A4 PDF document containing SkillHub branding, **"Constancia de inscripción"**, participant full name and email, workshop code and title, instructor name, workshop schedule, enrollment date, and certificate generation date.
+- Generates a compact, single-page institutional A4 PDF document containing SkillHub branding, unique document folio (`SH-YYYY-XXXXXX`), SHA-256 digital verification code, **"Constancia de inscripción"**, participant full name and email, workshop code and title, instructor name, workshop schedule, enrollment date, generation date, and academic signature blocks.
 
 ### Analytical Report & Chart.js Visualization (`GET /api/v1/reports/top-workshops`)
 - Returns workshops ordered descending by their active enrollment count (`ActiveEnrollmentsCount`).
 - Rendered visually in the web portal using **Chart.js** interactive bar charts comparing `Active Enrollments` vs. `Available Spots` and `Maximum Capacity`.
+
+### Interactive Web Portal (`src/SkillHub.Api/wwwroot/index.html`)
+- **Theme Switcher**: Instant toggle between **Light Mode** and **Dark Mode** with persistent user preference.
+- **Real-Time Filtering & Sorting**: Filter workshops by category (`Fotografía`, `Cocina y Gastronomía`, `Oratoria`, `Música`, `Marketing Digital`, `Diseño Visual`), month, text search, and spot availability.
+- **Role-Specific Experiences**:
+  - **Guest Landing**: Hero showcase, live workshop catalog, and contextual authentication modal.
+  - **Participant Workspace**: Tailored welcome header, one-click seat reservation, personal enrollment ledger, direct PDF certificate download, and custom in-page cancellation confirmation modal displaying the 24-hour policy.
+  - **Employee / Instructor Workspace**: Role-specific management header, workshop creation form, bulk `.xlsx` import processor, enrolled participant roster inspector per workshop, and Top Workshops demand analytics.
 
 ---
 
