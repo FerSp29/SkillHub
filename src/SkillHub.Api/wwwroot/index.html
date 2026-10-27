@@ -1255,6 +1255,9 @@
         document.getElementById('welcome-name').textContent = session.fullName.split(' ')[0];
 
         const isEmp = session.role === 'Employee';
+        document.getElementById('welcome-subtitle').textContent = isEmp
+          ? 'Gestiona la programación de talleres, consulta los participantes inscritos, importa registros desde Excel y revisa los reportes de demanda.'
+          : 'Explora los próximos talleres, gestiona tus cupos y descarga tus constancias en PDF.';
         document.getElementById('tab-my-enrollments').classList.toggle('hidden', isEmp);
         document.getElementById('tab-admin').classList.toggle('hidden', !isEmp);
         document.getElementById('tab-reports').classList.toggle('hidden', !isEmp);
