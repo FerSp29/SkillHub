@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root, [data-theme="light"] {
       --bg: #F8FAFC;
@@ -743,6 +744,20 @@
 
       <!-- Cards Grid -->
       <div id="workshops-grid" class="workshops-grid"></div>
+
+      <!-- Appended Workshop Analytics Chart Section -->
+      <div class="panel-card" style="margin-bottom: 56px;">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800;">Workshop Enrollment &amp; Capacity Analytics</h3>
+            <p style="font-size: 13px; color: var(--text-secondary);">Real-time comparison of Active Enrollments vs. Available Spots across upcoming workshops.</p>
+          </div>
+          <span style="font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 99px; background: var(--accent-soft); color: var(--accent-text);">Live Data</span>
+        </div>
+        <div style="position: relative; height: 340px; width: 100%;">
+          <canvas id="workshopsAnalyticsChart"></canvas>
+        </div>
+      </div>
     </section>
 
     <!-- VIEW 2: PARTICIPANT ENROLLMENTS & CERTIFICATES -->
@@ -832,6 +847,18 @@
 
     <!-- VIEW 4: TOP WORKSHOPS REPORT -->
     <section id="view-reports" class="hidden" style="padding: 28px 0 56px;">
+      <div class="panel-card" style="margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800;">Top Workshops Demand Chart</h3>
+            <p style="font-size: 13px; color: var(--text-secondary);">Active Enrollments vs. Maximum Capacity ranked by demand.</p>
+          </div>
+        </div>
+        <div style="position: relative; height: 320px; width: 100%;">
+          <canvas id="topWorkshopsReportChart"></canvas>
+        </div>
+      </div>
+
       <div class="panel-card">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border);">
           <div>
@@ -1642,6 +1669,187 @@
         showToast('Error al cargar el reporte');
       }
     }
+
+    // Chart.js Analytics Integration
+    let catalogChartInstance = null;
+    let reportChartInstance = null;
+
+    function getChartThemeColors() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      return {
+        textColor: isDark ? '#CBD5E1' : '#475569',
+        gridColor: isDark ? 'rgba(148, 163, 184, 0.14)' : 'rgba(15, 23, 42, 0.08)',
+        activeColor: isDark ? '#3B82F6' : '#2563EB',
+        availableColor: isDark ? '#10B981' : '#059669',
+        capacityColor: isDark ? 'rgba(148, 163, 184, 0.35)' : 'rgba(100, 116, 139, 0.28)'
+      };
+    }
+
+    function renderWorkshopsAnalyticsChart() {
+      if (typeof Chart === 'undefined') return;
+      const canvas = document.getElementById('workshopsAnalyticsChart');
+      if (!canvas) return;
+
+      const colors = getChartThemeColors();
+      const labels = workshops.map(w => w.code);
+      const activeData = workshops.map(w => Math.max(0, w.capacity - w.availableSpots));
+      const availableData = workshops.map(w => w.availableSpots);
+
+      if (catalogChartInstance) {
+        catalogChartInstance.destroy();
+      }
+
+      catalogChartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Active Enrollments',
+              data: activeData,
+              backgroundColor: colors.activeColor,
+              borderRadius: 6
+            },
+            {
+              label: 'Available Spots',
+              data: availableData,
+              backgroundColor: colors.availableColor,
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { color: colors.textColor, font: { family: 'Plus Jakarta Sans', weight: '600' } }
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const idx = items[0].dataIndex;
+                  const w = workshops[idx];
+                  return w ? `${w.code} — ${w.title}` : items[0].label;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              ticks: { color: colors.textColor, font: { family: 'Plus Jakarta Sans', weight: '600' } },
+              grid: { display: false }
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              title: { display: true, text: 'Seats', color: colors.textColor },
+              ticks: { color: colors.textColor, precision: 0 },
+              grid: { color: colors.gridColor }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTopWorkshopsReportChart(reportList) {
+      if (typeof Chart === 'undefined' || !Array.isArray(reportList)) return;
+      const canvas = document.getElementById('topWorkshopsReportChart');
+      if (!canvas) return;
+
+      const colors = getChartThemeColors();
+      const labels = reportList.map(w => w.code);
+      const activeCounts = reportList.map(w => w.activeEnrollmentsCount);
+      const capacities = reportList.map(w => w.capacity);
+
+      if (reportChartInstance) {
+        reportChartInstance.destroy();
+      }
+
+      reportChartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Active Enrollments',
+              data: activeCounts,
+              backgroundColor: colors.activeColor,
+              borderRadius: 6
+            },
+            {
+              label: 'Maximum Capacity',
+              data: capacities,
+              backgroundColor: colors.capacityColor,
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { color: colors.textColor, font: { family: 'Plus Jakarta Sans', weight: '600' } }
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const idx = items[0].dataIndex;
+                  const w = reportList[idx];
+                  return w ? `${w.code} — ${w.title}` : items[0].label;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: colors.textColor, font: { family: 'Plus Jakarta Sans', weight: '600' } },
+              grid: { display: false }
+            },
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Seats', color: colors.textColor },
+              ticks: { color: colors.textColor, precision: 0 },
+              grid: { color: colors.gridColor }
+            }
+          }
+        }
+      });
+    }
+
+    // Hook Chart.js rendering into existing lifecycle functions without altering them
+    const _origRenderWorkshops = renderWorkshops;
+    renderWorkshops = function () {
+      _origRenderWorkshops();
+      renderWorkshopsAnalyticsChart();
+    };
+
+    const _origLoadTopReport = loadTopReport;
+    loadTopReport = async function () {
+      await _origLoadTopReport();
+      try {
+        const res = await fetch('/api/v1/reports/top-workshops', {
+          headers: { 'Authorization': `Bearer ${session.token}` }
+        });
+        if (res.ok) {
+          const list = await res.json();
+          renderTopWorkshopsReportChart(list);
+        }
+      } catch (_) {}
+    };
+
+    const _origToggleTheme = toggleTheme;
+    toggleTheme = function () {
+      _origToggleTheme();
+      renderWorkshopsAnalyticsChart();
+      if (reportChartInstance && !document.getElementById('view-reports').classList.contains('hidden')) {
+        loadTopReport();
+      }
+    };
 
     // Set default future dates in form
     const d1 = new Date(Date.now() + 86400000 * 7);

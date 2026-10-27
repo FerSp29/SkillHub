@@ -48,6 +48,7 @@ SkillHub/
 - **Excel Processing**: `ClosedXML` (automated database seeding and bulk enrollment import)
 - **PDF Generation**: `QuestPDF` (official enrollment certificate generation)
 - **API Documentation**: `Swashbuckle.AspNetCore` (Swagger OpenAPI v1 with Bearer security scheme)
+- **Frontend & Data Visualization**: HTML5 / CSS3 (Light & Dark Themes), Vanilla JS SPA (`wwwroot/index.html`), and **Chart.js** for real-time enrollment & capacity analytics
 
 ### Design Patterns Used
 - **Clean Architecture (Onion/Layered Architecture)**
@@ -87,8 +88,9 @@ SkillHub/
 - Restricted to `Active` enrollments.
 - Generates an official A4 PDF document containing SkillHub branding, **"Constancia de inscripción"**, participant full name and email, workshop code and title, instructor name, workshop schedule, enrollment date, and certificate generation date.
 
-### Analytical Report (`GET /api/v1/reports/top-workshops`)
+### Analytical Report & Chart.js Visualization (`GET /api/v1/reports/top-workshops`)
 - Returns workshops ordered descending by their active enrollment count (`ActiveEnrollmentsCount`).
+- Rendered visually in the web portal using **Chart.js** interactive bar charts comparing `Active Enrollments` vs. `Available Spots` and `Maximum Capacity`.
 
 ---
 
